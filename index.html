@@ -17,8 +17,8 @@
         .tabs { display: flex; gap: 5px; }
         .tab-btn { padding: 12px 25px; border: none; border-radius: 8px 8px 0 0; cursor: pointer; background: #eee; font-weight: bold; transition: 0.3s; color: #555; }
         .tab-btn.active { background: var(--primary); color: white; }
-        .tab-btn.teacher-tab.active { background: var(--warning); }
-        .tab-btn.dash-tab.active { background: var(--secondary); }
+        .tab-btn.teacher-tab.active { background: var(--secondary); }
+        .tab-btn.dash-tab.active { background: var(--warning); }
 
         /* Content Sections */
         .content-section { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
@@ -27,7 +27,6 @@
 
         /* Control Bar */
         .control-bar { background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; border: 1px solid #ddd; }
-        
         select.day-select { padding: 10px; border: 2px solid var(--primary); border-radius: 6px; font-weight: bold; cursor: pointer; }
         
         /* Buttons */
@@ -50,7 +49,6 @@
         select.sub-sel, select.t-sel  { width: 96%; border: 1px solid lightgray; border-radius: 4px; font-size: 14px; padding: 4px; background: white;}
         select.t-sel { font-weight: bold; color: var(--primary); margin-top: 3px; }
 
-
         /* Dash Cards */
         .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .card { background: white; padding: 15px; border-radius: 10px; border: 1px solid #ddd; }
@@ -58,11 +56,7 @@
         .progress-bg { background: #eee; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 4px; }
         .progress-fill { height: 100%; transition: 0.5s; }
         #tooltip { position: absolute; display: none; background: rgba(0,0,0,0.9); color: white; padding: 10px; border-radius: 5px; z-index: 1000; font-size: 11px; pointer-events: none; border: 1px solid #555; }
-        .invalid-selection {
-            border: 2px solid #d93025 !important;
-            background-color: #ffebee !important;
-            transition: all 0.3s ease;
-        }
+        .invalid-selection {  border: 2px solid #d93025 !important; background-color: #ffebee !important; transition: all 0.3s ease; }
         #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 25px; border-radius: 20px; display: none; z-index: 2000; }
       @media print { .no-print { display: none; } .table-container { border: none; } }
     </style>
@@ -115,16 +109,16 @@
     <div class="admin-grid">
         <div class="card">
             <h3>Teacher Name</h3>
-            <input type="text" id="tName" placeholder="Name" style="width:90%; margin-bottom:5px; padding:10px;">
+            <input type="text" id="tName" placeholder="Name" style="width:90%; padding:10px; border-radius: 5px;">
             <h3>Short Form</h3>
-            <input type="text" id="tShort" placeholder="Name Short Form" style="width:90%; margin-bottom:5px; padding:10px;">
+            <input type="text" id="tShort" placeholder="Name Short Form" style="width:90%; padding:10px; border-radius: 5px;">
             <h3>Select Subjects</h3>
             <div style="display:flex; gap:5px; margin-bottom:5px;">
                 <select id="subPicker" style="flex:1; padding: 10px;"></select>
                 <button class="btn-gen" onclick="addTag()">+ Add Subject</button>
             </div>
-            <div id="tagContainer" style="border:1px dashed #ccc; padding:10px; margin-bottom:10px;"></div>
-            <button class="btn-save" onclick="saveTeacher()" style="width:100%">Save Teacher</button>
+            <div id="tagContainer" style="border:1px dashed #ccc; padding:10px; margin-bottom:10px; border-radius: 5px;"></div>
+            <button class="btn-save" onclick="saveTeacher()" style="width:100%; display: flex; justify-content: center;">Save Teacher</button>
         </div>
         <div class="card">
             <h3>Teacher List</h3>
@@ -186,10 +180,20 @@ function removeTag(t) { tempTags = tempTags.filter(x => x !== t); renderTags(); 
 function saveTeacher() {
     const name = document.getElementById('tName').value;
     const short = document.getElementById('tShort').value.toUpperCase().trim();
-    if(!name || !short || tempTags.length === 0) return alert("Fill all info!");
+    if(!name || !short || tempTags.length === 0) {
+        return alert("সব তথ্য পূরণ করুন এবং অন্তত একটি বিষয় যোগ করুন!");
+    }
+    
     teachers[short] = { name, subs: [...tempTags] };
     localStorage.setItem('h_teachers', JSON.stringify(teachers));
-    location.reload();
+    document.getElementById('tName').value = "";
+    document.getElementById('tShort').value = "";
+    tempTags = [];
+    renderTags(); 
+    renderTList();     
+    updateUI();        
+    
+    showToast("শিক্ষকের তথ্য সেভ হয়েছে!");
 }
 
 function renderTList() {
@@ -204,7 +208,6 @@ function delT(id) { if(confirm("Delete?")) { delete teachers[id]; localStorage.s
 
 // UI Initialization
 function init() {
-    // সাবজেক্ট পিকার আপডেট (টিচার ট্যাব এর জন্য)
     const allS = new Set(); 
     Object.values(config.subjects).forEach(c => Object.keys(c).forEach(s => allS.add(s)));
     const subPicker = document.getElementById('subPicker');
@@ -273,10 +276,6 @@ function init() {
     updateConflictUI(); // লোড হওয়ার সময় কোনো কনফ্লিক্ট থাকলে দেখাবে
 }
 
-
-
-
-
 function getTOpts(sub, sel="") {
     let o = '<option value="">---</option>'; if(!sub) return o;
     Object.keys(teachers).forEach(id => { if(teachers[id].subs.includes(sub)) o += `<option value="${id}" ${id===sel?'selected':''}>${id}</option>`; });
@@ -291,89 +290,142 @@ function subChg(el) {
     const sec = tr.dataset.sec;
     const sub = el.value;
     const ts = td.querySelector('.t-sel');
+    
+    // পিরিয়ড নম্বর বের করা (যেমন: p1 থেকে 1)
+    const pParts = td.id.split('-p');
+    const p = parseInt(pParts[1]);
 
-    // আগের সব হাইলাইট মুছে ফেলা
-    document.querySelectorAll('.invalid-selection').forEach(x => x.classList.remove('invalid-selection'));
+    // আগের সব টেম্পোরারি হাইলাইট মুছে ফেলা
+    td.classList.remove('invalid-selection');
 
     if (sub !== "") {
-        // ডুপ্লিকেট সেলগুলো খুঁজে বের করা
-        const duplicateSelectors = findDuplicates(day, cls, sec, sub);
+        // ১. পিরিয়ড ব্লক সাইজ নির্ধারণ (ম্যানুয়াল এন্ট্রির জন্য আপাতত ১ ধরা হয়)
+        // কিন্তু ICT/Drawing হলে সেটিকে ২ পিরিয়ড হিসেবে চেক করা উচিত
+        let bSize = (sub === "ICT" || sub === "Drawing") ? 2 : 1;
         
-        if (duplicateSelectors.length > 1) {
-            // ১. উভয় সেলকে হাইলাইট করা
-            duplicateSelectors.forEach(sel => sel.classList.add('invalid-selection'));
+        // ২. অ্যাডভান্সড রুল চেক করা
+        let res = checkManualAdvancedRule(cls, sec, p, sub, bSize, day);
 
-            // ২. ২ সেকেন্ড পর অ্যাকশন
+        if (!res.possible) {
+            // শর্ত ভঙ্গ হলে লাল বর্ডার দেওয়া
+            td.classList.add('invalid-selection');
+            
+            // ২ সেকেন্ড পর ইনপুট মুছে ফেলা (আটকে দেওয়া)
             setTimeout(() => {
-                // বর্তমানে যেটা ট্রাই করা হচ্ছে সেটা মুছে ফেলা
-                el.value = "";
+                el.value = ""; 
                 ts.innerHTML = '<option value="">---</option>';
-                
-                // বাকি সব সেলের হাইলাইট কালার স্বাভাবিক করা
-                document.querySelectorAll('.invalid-selection').forEach(x => x.classList.remove('invalid-selection'));
-                
-                manualSave(); // ডাটা আপডেট
+                td.classList.remove('invalid-selection');
+                showToast("⚠️ শর্ত ভঙ্গ হয়েছে! এন্ট্রি বাতিল।");
+                manualSave();
             }, 2000);
             return;
         }
-    }
 
-    // টিচার অপশন আপডেট
-    ts.innerHTML = getTOpts(sub);
-    if (ts.options.length > 1) ts.selectedIndex = 1;
+        // ৩. সব ঠিক থাকলে টিচার লিস্ট আপডেট এবং অটো-সিলেক্ট
+        ts.innerHTML = getTOpts(sub, res.teacher);
+        if (ts.options.length > 1) ts.selectedIndex = 1; 
+
+    } else {
+        ts.innerHTML = '<option value="">---</option>';
+    }
 
     manualSave();
 }
 
-function findDuplicates(day, cls, sec, sub) {
+
+function checkManualAdvancedRule(cls, sec, p, sub, block, day) {
+    // এই বিষয়ের টিচার কারা আছেন তাদের লিস্ট বের করা
+    const potentialTeachers = Object.keys(teachers).filter(t => teachers[t].subs.includes(sub));
+    if (potentialTeachers.length === 0) return { possible: false };
+
     const specialSubs = ["Work", "Trade1", "Trade2"];
-    const midSubs = ["ICT", "Drawing"];
-    const matches = [];
-    
-    // ঐ দিনের ঐ সেকশনের সব সিলেক্ট বক্স চেক করা
-    const rowSelectors = document.querySelectorAll(`tr[data-day="${day}"][data-cls="${cls}"][data-sec="${sec}"] .sub-sel`);
-    
-    rowSelectors.forEach(select => {
-        if (select.value === sub) {
-            matches.push(select);
-        }
+
+    // --- শর্ত ১: সেকশন ভিত্তিক সাপ্তাহিক লোড চেক ---
+    let countInThisSec = 0;
+    // বর্তমান সেকশনের সব পিরিয়ড চেক করে দেখা এই সাবজেক্ট কয়বার আছে
+    document.querySelectorAll(`tr[data-cls="${cls}"][data-sec="${sec}"] .sub-sel`).forEach(sel => {
+        if (sel.value === sub) countInThisSec++;
     });
 
-    let limit = 1; // সাধারণ বিষয়ের জন্য ১ পিরিয়ড
-    if (specialSubs.includes(sub)) limit = 4; // Trade/Work এর জন্য ৪ পিরিয়ড
-    if (midSubs.includes(sub)) limit = 2;    // ICT/Drawing এর জন্য ২ পিরিয়ড
-
-    // যদি লিমিট ক্রস করে, তবেই ম্যাসেজ বা লিস্ট পাঠাবে
-    return matches.length > limit ? matches : [];
-}
-
-
-function checkManualRule(day, cls, sec, sub, currentTdId) {
-    let dayCount = 0;
-    const specialSubs = ["Work", "Trade1", "Trade2"];
-    
-    // ঐ দিনের ঐ সেকশনের ঐ ক্লাসের সব সিলেক্ট বক্স চেক করা
-    const rowCells = document.querySelectorAll(`tr[data-day="${day}"][data-cls="${cls}"][data-sec="${sec}"] .sub-sel`);
-    
-    rowCells.forEach(select => {
-        if (select.value === sub) {
-            dayCount++;
-        }
-    });
-
-    // শর্ত প্রয়োগ:
-    if (specialSubs.includes(sub)) {
-        // Trade/Work এর জন্য দিনে ৪ পিরিয়ডের বেশি হওয়া যাবে না
-        if (dayCount > 4) return true; 
-    } else {
-        // সাধারণ বিষয়ের জন্য দিনে ১ পিরিয়ডের বেশি হওয়া যাবে না
-        if (dayCount > 1) return true;
+    // মোট লোড অনুমোদিত সীমার বেশি হলে (তবে ম্যানুয়াল এন্ট্রিতে বর্তমানটা বাদে চেক করা ভালো)
+    // আমরা এখানে শুধু চেক করছি নতুন ব্লক যোগ করলে লিমিট ক্রস করে কি না
+    if (countInThisSec > config.subjects[cls][sub]) {
+        // return { possible: false }; // ইচ্ছা করলে এটি অন করতে পারেন
     }
-    
-    return false;
+
+    // --- শর্ত ২: ডেইলি ডিস্ট্রিবিউশন চেক (একই দিনে একই বিষয় বারবার কি না) ---
+    const row = document.querySelector(`tr[data-day="${day}"][data-cls="${cls}"][data-sec="${sec}"]`);
+    let dayTotal = 0;
+    row.querySelectorAll('.sub-sel').forEach(sel => {
+        if (sel.value === sub) dayTotal++;
+    });
+
+    if (specialSubs.includes(sub)) {
+        if (block === 3 && dayTotal > 1) return { possible: false }; 
+        if (block === 1 && dayTotal > 1) return { possible: false };
+    } 
+    else if (sub === "ICT" || sub === "Drawing") {
+        if (block !== 2 || dayTotal > 1) return { possible: false };
+    } 
+    else {
+        if (dayTotal > 1) return { possible: false }; 
+    }
+
+    // --- শর্ত ৩: পিরিয়ড বাউন্ডারি ও টিফিন ব্রেক চেক ---
+    let startP = parseInt(p);
+    let endP = startP + block - 1;
+    let maxP = (cls <= 8) ? 6 : 8;
+
+    if (endP > maxP) return { possible: false }; // স্কুল টাইম শেষ হয়ে গেলে ব্লক
+    if (block >= 2 && startP <= 4 && endP > 4) return { possible: false }; // টিফিন ব্রেকের মাঝখানে ব্লক পড়া যাবে না
+
+    // --- শর্ত ৪: ICT Lab Conflict Check ---
+    if (sub === "ICT") {
+        for (let i = 0; i < block; i++) {
+            let cp = startP + i;
+            let labInUse = false;
+            document.querySelectorAll(`tr[data-day="${day}"] .sub-sel`).forEach(sel => {
+                let td = sel.closest('td');
+                // নিজের সেকশন বাদে অন্য কোনো সেকশনে কি এই সময়ে ICT আছে?
+                if (!td.id.includes(`-${cls}-${sec}-`) && td.id.includes(`-p${cp}`) && sel.value === "ICT") {
+                    labInUse = true;
+                }
+            });
+            if (labInUse) return { possible: false };
+        }
+    }
+
+    // --- শর্ত ৫: টিচার এভেইল্যাবিলিটি চেক (সবচেয়ে গুরুত্বপূর্ণ অংশ) ---
+    for (let tCode of potentialTeachers) {
+        let isBusy = false;
+        for (let i = 0; i < block; i++) {
+            let cp = startP + i;
+            
+            // ১. এই টিচার কি অন্য কোনো ক্লাসে এই পিরিয়ডে ক্লাস নিচ্ছে?
+            document.querySelectorAll(`.t-day-${day}.t-p-${cp}`).forEach(sel => {
+                const parentTd = sel.closest('td');
+                // যদি এই টিচার অন্য কোনো সেকশনের একই পিরিয়ডে থাকে
+                if (!parentTd.id.includes(`-${cls}-${sec}-`) && sel.value === tCode) {
+                    isBusy = true;
+                }
+            });
+
+            // ২. যদি এটা মাল্টি-পিরিয়ড ব্লক হয় (যেমন ICT p1-p2), তবে পরের ঘর (p2) কি খালি?
+            if (i > 0) {
+                const nextTd = document.getElementById(`${day}-${cls}-${sec}-p${cp}`);
+                if (nextTd && nextTd.querySelector('.sub-sel').value !== "") {
+                    isBusy = true;
+                }
+            }
+        }
+
+        // যদি এই টিচারকে পাওয়া যায় যে এই স্লটে ফ্রি আছে
+        if (!isBusy) return { possible: true, teacher: tCode };
+    }
+
+    // কোনো ফ্রি টিচার পাওয়া না গেলে
+    return { possible: false };
 }
-
-
 
 function manualSave() {
     document.querySelectorAll('.routine-cell').forEach(td => {
@@ -399,244 +451,125 @@ function generateDay() {
 }
 
 function runAutoFill(day) {
-
-    // 🔀 class random order
+    // সেকশন এবং ক্লাস র‍্যান্ডম অর্ডারে লুপ চালানো
     [...config.classes].sort(() => Math.random() - 0.5).forEach(cls => {
-
-        // 🔀 section random order
         [...config.sections].sort(() => Math.random() - 0.5).forEach(sec => {
-
+            
             for (let p = 1; p <= (cls <= 8 ? 6 : 8); p++) {
-
                 const td = document.getElementById(`${day}-${cls}-${sec}-p${p}`);
-
-                // ❌ যদি আগে থেকেই filled থাকে skip
                 if (!td || td.querySelector('.sub-sel').value !== "") continue;
 
-                // 🔀 subject random
-                let allSubs = Object.keys(config.subjects[cls])
-                    .sort(() => Math.random() - 0.5);
+                let allSubs = Object.keys(config.subjects[cls]).sort(() => Math.random() - 0.5);
 
                 for (let sub of allSubs) {
-
-                    // 🔥 block rule
-                    let blocks =
-                        (sub === "Work" || sub.includes("Trade")) ? [3, 1] :
-                        (sub === "ICT" || sub === "Drawing") ? [2] :
-                        [1];
+                    // শর্ত ৩ ও ৪ অনুযায়ী ব্লকিং প্রায়োরিটি সেট করা
+                    let blocks = [];
+                    if (sub === "Work" || sub.includes("Trade")) {
+                        blocks = [3, 1]; // ৩ পিরিয়ড ব্যবহারিক অথবা ১ পিরিয়ড তাত্ত্বিক
+                    } else if (sub === "ICT" || sub === "Drawing") {
+                        blocks = [2]; // শুধুমাত্র ২ পিরিয়ড ব্যবহারিক
+                    } else {
+                        blocks = [1]; // সাধারণ বিষয় ১ পিরিয়ড
+                    }
 
                     for (let bSize of blocks) {
-
                         let res = checkAdvancedRule(cls, sec, p, sub, bSize, day);
 
                         if (res.possible) {
-
                             for (let i = 0; i < bSize; i++) {
-
                                 let target = document.getElementById(`${day}-${cls}-${sec}-p${p + i}`);
-
-                                // subject বসানো
                                 target.querySelector('.sub-sel').value = sub;
-
-                                // 🔥 teacher assign properly
+                                
                                 let tSel = target.querySelector('.t-sel');
                                 tSel.innerHTML = getTOpts(sub, res.teacher);
                                 tSel.value = res.teacher;
                             }
-
-                            // skip next periods
                             p += (bSize - 1);
-                            break;
+                            break; 
                         }
                     }
+                    // যদি কোনো বিষয় এই পিরিয়ডে বসে যায়, তবে পরবর্তী পিরিয়ডে চলে যাও
+                    if (td.querySelector('.sub-sel').value !== "") break;
                 }
             }
         });
     });
 }
 
-
 function checkAdvancedRule(cls, sec, p, sub, block, day) {
+    const potentialTeachers = Object.keys(teachers).filter(t => teachers[t].subs.includes(sub));
+    if (potentialTeachers.length === 0) return { possible: false };
 
-    // 🔹 ১. কোন কোন শিক্ষক এই subject পড়াতে পারে তা বের করা
-    const potentialTeachers = Object.keys(teachers)
-        .filter(t => teachers[t].subs.includes(sub));
-
-    // ❌ যদি কোনো শিক্ষকই না থাকে → reject
-    if (potentialTeachers.length === 0) {
-        return { possible: false };
-    }
-
-    // 🔹 ২. Special subject list
     const specialSubs = ["Work", "Trade1", "Trade2"];
 
-
-    // ===============================
-    // 🔸 ৩. Weekly limit check
-    // ===============================
-
-    let currentInWeek = 0;
-
-    // 🔥 DOM থেকে live count নেওয়া (100% accurate)
-    document.querySelectorAll('.sub-sel').forEach(sel => {
-        if (sel.closest('tr').dataset.cls == cls && sel.value === sub) {
-            currentInWeek++;
-        }
+    // --- শর্ত ৮: সেকশন ভিত্তিক সাপ্তাহিক লোড চেক ---
+    let countInThisSec = 0;
+    document.querySelectorAll(`tr[data-cls="${cls}"][data-sec="${sec}"] .sub-sel`).forEach(sel => {
+        if (sel.value === sub) countInThisSec++;
     });
 
-    // ❌ limit ছাড়ালে reject
-    if ((currentInWeek + block) > (config.subjects[cls][sub] * 2)) {
-        return { possible: false };
-    }
+    // মোট লোড অনুমোদিত সীমার বেশি হলে রিজেক্ট
+    if ((countInThisSec + block) > config.subjects[cls][sub]) return { possible: false };
 
-
-    // ===============================
-    // 🔸 ৪. Daily count check
-    // ===============================
-
+    // --- শর্ত ২, ৩, ৪: ডেইলি ডিস্ট্রিবিউশন চেক ---
     const row = document.querySelector(`tr[data-day="${day}"][data-cls="${cls}"][data-sec="${sec}"]`);
-
     let dayTotal = 0;
-
     row.querySelectorAll('.sub-sel').forEach(sel => {
         if (sel.value === sub) dayTotal++;
     });
 
-
-    // ===============================
-    // 🔸 ৫. Subject-wise rules
-    // ===============================
-
     if (specialSubs.includes(sub)) {
-
-        // 👉 Work / Trade rules
-
-        // ❌ ৩ ব্লক দিলে আগে ৩ বা তার বেশি থাকলে হবে না
-        if (block === 3 && dayTotal >= 3) return { possible: false };
-
-        // ❌ ১ ব্লক দিলে:
-        // আগে ১টা থাকলে বা ৪+ হয়ে গেলে হবে না
-        if (block === 1 && (dayTotal === 1 || dayTotal >= 4)) return { possible: false };
-
-        // ❌ ২ বা ৪ ব্লক নিষিদ্ধ
-        if (block === 2 || block === 4) return { possible: false };
-
+        // ৩+৩+১+১ লজিক: দিনে ৩ পিরিয়ড ব্যবহারিক হলে আর কিছু হবে না, ১ পিরিয়ড তাত্ত্বিক হলে আর কিছু হবে না
+        if (block === 3 && dayTotal > 0) return { possible: false };
+        if (block === 1 && dayTotal > 0) return { possible: false };
+        if (block === 2) return { possible: false }; // ২ পিরিয়ড ব্লক নিষিদ্ধ
     } 
     else if (sub === "ICT" || sub === "Drawing") {
-
-        // 👉 ICT / Drawing rules
-
-        // ❌ অবশ্যই ২ পিরিয়ড ব্লক হতে হবে
-        // ❌ দিনে একবারই হবে
         if (block !== 2 || dayTotal > 0) return { possible: false };
-
     } 
     else {
-
-        // 👉 সাধারণ subject (Math, English etc.)
-
-        // ❌ ১ পিরিয়ডের বেশি দেওয়া যাবে না
-        // ❌ দিনে ১বারের বেশি না
         if (block > 1 || dayTotal >= 1) return { possible: false };
     }
 
-
-    // ===============================
-    // 🔸 ৬. ICT Lab conflict check
-    // ===============================
-
+    // --- শর্ত ৭: ICT Lab Conflict Check ---
     if (sub === "ICT") {
-
         for (let i = 0; i < block; i++) {
-
-            let cp = parseInt(p) + i; // current period
+            let cp = parseInt(p) + i;
             let labInUse = false;
-
-            // ঐ দিনের সব ICT চেক করা হচ্ছে
             document.querySelectorAll(`tr[data-day="${day}"] .sub-sel`).forEach(sel => {
-
-            
-
                 let td = sel.closest('td');
-                let idParts = td.id.split('-p');
-
-                // 🔥 exact period match
-                if (idParts[1] == cp && sel.value === "ICT") {
-                    labInUse = true;
-                }
+                if (td.id.includes(`-p${cp}`) && sel.value === "ICT") labInUse = true;
             });
-
-            // ❌ lab busy → reject
             if (labInUse) return { possible: false };
         }
     }
 
-
-    // ===============================
-    // 🔸 ৭. Period boundary check
-    // ===============================
-
+    // --- শর্ত ৫ ও ৮: পিরিয়ড বাউন্ডারি ও টিফিন ব্রেক চেক ---
     let endP = parseInt(p) + block - 1;
-
-    // Class অনুযায়ী max period
     let maxP = (cls <= 8) ? 6 : 8;
-
-    // ❌ limit ছাড়ালে reject
     if (endP > maxP) return { possible: false };
+    // টিফিন ব্রেক (পিরিয়ড ৪) এর মাঝখানে ব্যবহারিক পড়া যাবে না
+    if (block >= 2 && p <= 4 && endP > 4) return { possible: false };
 
-
-    // ===============================
-    // 🔸 ৮. Tiffin break conflict check
-    // ===============================
-
-    // ❌ block যদি break (p4) cross করে → reject
-    if (block >= 2 && p <= 4 && endP >= 4) return { possible: false };
-
-
-    // ===============================
-    // 🔸 ৯. Teacher conflict check
-    // ===============================
-
+    // --- শর্ত ১ ও ৬: টিচার এভেইল্যাবিলিটি চেক ---
     for (let tCode of potentialTeachers) {
-
         let isBusy = false;
-
         for (let i = 0; i < block; i++) {
-
             let cp = parseInt(p) + i;
-
-            let conflict = false;
-
-            // ঐ period-এ teacher already assigned কিনা
+            // ঐ পিরিয়ডে টিচার অন্য সেকশনে ব্যস্ত কি না
             document.querySelectorAll(`.t-day-${day}.t-p-${cp}`).forEach(sel => {
-                if (sel.value === tCode) conflict = true;
+                if (sel.value === tCode) isBusy = true;
             });
-
-            // ❌ teacher busy
-            if (conflict) {
-                isBusy = true;
-                break;
-            }
-
-            // ❌ slot already filled
-            const td = document.getElementById(`${day}-${cls}-${sec}-p${cp}`);
-            if (!td || td.querySelector('.sub-sel').value !== "") {
-                isBusy = true;
-                break;
-            }
+            // ঐ স্লট ইতিমধ্যে অন্য বিষয় দিয়ে ফিল্ড কি না
+            const targetTd = document.getElementById(`${day}-${cls}-${sec}-p${cp}`);
+            if (!targetTd || targetTd.querySelector('.sub-sel').value !== "") isBusy = true;
         }
 
-        // ✅ teacher free → assign
-        if (!isBusy) {
-            return { possible: true, teacher: tCode };
-        }
+        if (!isBusy) return { possible: true, teacher: tCode };
     }
 
-
-    // ❌ কোনো valid teacher পাওয়া যায়নি
     return { possible: false };
 }
-
 
 
 function updateConflictUI() {
@@ -695,34 +628,61 @@ function checkIncomplete() {
 
 function showToast(m) { const t = document.getElementById('toast'); t.innerText=m; t.style.display='block'; setTimeout(()=>t.style.display='none', 2000); }
 
+
 function showTooltip(e, td) {
-    const cls = td.closest('tr').dataset.cls;
+    const tr = td.closest('tr');
+    const cls = tr.dataset.cls;
+    const sec = tr.dataset.sec;
+    const currentSub = td.querySelector('.sub-sel').value;
+    
     let usage = {};
 
-    // বর্তমান পেজের সব সিলেক্ট বক্স থেকে ডাটা গুনে বের করা (প্রথম কোডের লজিক)
-    document.querySelectorAll('.sub-sel').forEach(s => {
-        if (s.closest('tr').dataset.cls === cls && s.value) {
+    // শুধুমাত্র এই নির্দিষ্ট ক্লাস এবং এই নির্দিষ্ট সেকশনের ডাটা গুনে বের করা
+    document.querySelectorAll(`tr[data-cls="${cls}"][data-sec="${sec}"] .sub-sel`).forEach(s => {
+        if (s.value) {
             usage[s.value] = (usage[s.value] || 0) + 1;
         }
     });
 
-    let html = `<strong>Class ${cls} Load Status:</strong><br><hr style="border:0; border-top:1px solid #555; margin:5px 0;">`;
-    
-    Object.keys(config.subjects[cls]).forEach(sub => { 
-        let target = config.subjects[cls][sub] * 2;
+    let html = `<div style="width: 150px; font-size: 11px; line-height: 1.3; padding: 2px;">`;
+    html += `<b style="color:var(--warning)">Class ${cls} (${sec})</b> : `;
+
+    // ১. বর্তমানে মাউস যে বিষয়ের ওপর আছে তার স্ট্যাটাস
+    if (currentSub) {
+        let target = config.subjects[cls][currentSub] || 0;
+        let current = usage[currentSub] || 0;
+        html += `<span style="color:#fff">${currentSub}: <b>${current}/${target}</b></span>`;
+    } else {
+        html += `<span style="color:#aaa">No subject</span>`;
+    }
+    html += `<hr style="border:0; border-top:1px solid #444; margin:4px 0;">`;
+
+    // ২. এই সেকশনের অন্যান্য কি কি বিষয় বাকি আছে
+    let remainingList = [];
+    Object.keys(config.subjects[cls]).forEach(sub => {
+        let target = config.subjects[cls][sub];
         let current = usage[sub] || 0;
         let rem = target - current;
         
-        // প্রথম কোডের মতো টেক্সট ফরম্যাট
-        html += `${sub}: ${rem > 0 ? rem + ' বাকি' : '<span style="color:#34a853">সম্পন্ন</span>'}<br>`; 
+        if (rem > 0 && sub !== currentSub) {
+            remainingList.push(`${sub}:<b> (${rem})</b>`);
+        }
     });
+
+    html += `<b style="color:#fbbc04">বাকি:</b> `;
+    if (remainingList.length > 0) {
+        html += `<span style="color:#eee; font-size:11px;">${remainingList.join(', ')}</span>`;
+    } else {
+        html += `<span style="color:#34a853;">সব সেট! ✅</span>`;
+    }
+
+    html += `</div>`;
 
     const tt = document.getElementById('tooltip');
     tt.innerHTML = html;
     tt.style.display = 'block';
-    
-    // মাউসের সাথে টুলটিপ মুভ করার পজিশন
-    tt.style.left = (e.pageX + 15) + 'px';
+ 
+    tt.style.left = (e.pageX + 10) + 'px';
     tt.style.top = (e.pageY + 10) + 'px';
 }
 
@@ -731,8 +691,6 @@ function hideTooltip() {
 }
 
 
-
-// ৫. এক্সেল এক্সপোর্ট লজিক
 async function downloadExcel() {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Routine_Full');
@@ -793,14 +751,9 @@ async function downloadExcel() {
     saveAs(new Blob([buffer]), `Vocational_Routine_Export.xlsx`);
 }
 
-
 function fullReset() {
-    if(confirm("সব ডাটা মুছে ফেলা হবে! আপনি কি নিশ্চিত?")) {
-        localStorage.clear();
-        location.reload();
-    }
+    if(confirm("সব ডাটা মুছে ফেলা হবে! আপনি কি নিশ্চিত?")) { localStorage.clear();  location.reload();}
 }
-
 
 window.onload = init;
 </script>
