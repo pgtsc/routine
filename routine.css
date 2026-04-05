@@ -1,0 +1,112 @@
+
+        :root { --primary: #1a73e8; --secondary: #34a853; --danger: #d93025; --warning: #fbbc04; --purple: #673ab7; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 0; font-size: 12px; color: #333; }
+        
+        /* Header & Tabs */
+        .header-box { background: white; padding: 15px 20px 0 20px;}
+        .header-top { display: flex; justify-content: space-between; align-items: center;}
+        .header-top h2 { margin: 0; color: var(--primary); font-size: 20px; font-weight: 800; }
+
+
+        .tabs { display: flex; gap: 5px;}
+        .tab-btn { padding: 12px 25px; border: none; border-radius: 8px 8px 0 0; cursor: pointer; background: #eee; font-weight: bold; transition: 0.3s; color: #555; }
+        .tab-btn.active { background: var(--primary); color: white; }
+        .tab-btn.teacher-tab.active { background: var(--secondary); }
+        .tab-btn.dash-tab.active { background: var(--warning); }
+
+        /* Content Sections */
+        .content-section { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Control Bar */
+        .control-bar { background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; border: 1px solid #ddd; }
+        select.day-select { padding: 10px; border: 2px solid var(--primary); border-radius: 6px; font-weight: bold; cursor: pointer; }
+        
+        /* Buttons */
+        button { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        button:active { transform: scale(0.95); }
+        .btn-gen { background: var(--primary); }
+        .btn-save { background: var(--secondary); }
+        .btn-reset { background: #ff9800; }
+        .btn-clear { background: var(--danger); }
+
+        /* Table */
+        .table-container { background: white; border-radius: 8px; border: 1px solid #ccc; overflow: auto; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        th, td { border: 1px solid #aeadad; padding: 4px; text-align: center; vertical-align: middle; position: relative; }
+        th { background: var(--primary); color: white; height: 30px; font-size: 13px; }
+        .break-cell { background: #333 !important; color: white; font-weight: bold; width: 35px; writing-mode: vertical-rl; text-orientation: upright; }
+        .conflict-error { background-color: #ffcccc !important; border: 2px solid red !important; }
+        .highlight-incomplete { background: #fff9c4 !important; border: 1.5px solid var(--warning) !important; }
+
+        select.sub-sel, select.t-sel  { width: 100%; border: 1px solid lightgray; border-radius: 4px; font-size: 14px; padding: 4px; background: white;}
+        select.t-sel { font-weight: bold; color: var(--primary); margin-top: 3px; }
+
+        .teacher-card { background: #fff; transition: 0.3s; }
+        .teacher-card:hover { background: #f1f1f1; }
+        .trade-mini-sel{background-color: #faf9f9; text-align: center; border: 1px solid rgb(143, 196, 155);}
+
+        /* Dash Cards */
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: white; padding: 12px; border-radius: 10px; border: 1px solid #ddd; }
+        .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        .progress-bg { background: #eee; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 4px; }
+        .progress-fill { height: 100%; transition: 0.5s; }
+        #tooltip { position: absolute; display: none; background: rgba(0,0,0,0.9); color: white; padding: 10px; border-radius: 5px; z-index: 1000; font-size: 11px; pointer-events: none; border: 1px solid #555; }
+        .invalid-selection {  border: 2px solid #d93025 !important; background-color: #ffebee !important; transition: all 0.3s ease; }
+        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 25px; border-radius: 20px; display: none; z-index: 2000; }
+     
+ 
+    
+      tr:hover {background-color: #f1f5f9;}
+
+    
+      .routine-cell:focus-within {
+          outline: 2px solid var(--primary);  box-shadow: 0 0 5px rgba(26, 115, 232, 0.4);
+      }
+
+      /* ট্রেড মিনি সিলেক্টরগুলো আরও স্পষ্ট করা */
+      .trade-mini-sel:focus {
+          border-color: var(--secondary);
+          background: #e8f5e9;
+      }
+
+        
+        /* অ্যাসাইনমেন্ট ট্যাগের জন্য বিশেষ স্টাইল */
+        .assignment-tag {
+            background: #1a73e8;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 3px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .assignment-tag b {
+            cursor: pointer;
+            color: #ffeb3b;
+            font-size: 16px;
+            padding-left: 5px;
+        }
+        .class-download-box {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            border-left: 2px solid #ddd;
+            padding-left: 15px;
+            margin-left: 10px;
+        }
+        .assignment-area {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 10px;
+            background: #fdfdfd;
+            margin-bottom: 10px;
+        }
+    
+        
+    
