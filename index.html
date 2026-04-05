@@ -2,527 +2,164 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <title>Routine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Routine Generator</title>
+    <link rel="stylesheet" href="routine.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <style>
-        :root { --primary: #1a73e8; --secondary: #34a853; --danger: #d93025; --warning: #fbbc04; --purple: #673ab7; --bg: #f8f9fa; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 0; font-size: 12px; color: #333; }
-        
-        /* Header & Tabs */
-        .header-box { background: white; padding: 15px 20px 0 20px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .header-top h2 { margin: 0; color: var(--primary); font-size: 20px; font-weight: 800; }
 
-        .tabs { display: flex; gap: 5px; }
-        .tab-btn { padding: 12px 25px; border: none; border-radius: 8px 8px 0 0; cursor: pointer; background: #eee; font-weight: bold; transition: 0.3s; color: #555; }
-        .tab-btn.active { background: var(--primary); color: white; }
-        .tab-btn.teacher-tab.active { background: var(--secondary); }
-        .tab-btn.dash-tab.active { background: var(--warning); }
-
-        /* Content Sections */
-        .content-section { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
-        .content-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Control Bar */
-        .control-bar { background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; border: 1px solid #ddd; }
-        select.day-select { padding: 10px; border: 2px solid var(--primary); border-radius: 6px; font-weight: bold; cursor: pointer; }
-        
-        /* Buttons */
-        button { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-        button:active { transform: scale(0.95); }
-        .btn-gen { background: var(--primary); }
-        .btn-save { background: var(--secondary); }
-        .btn-reset { background: #ff9800; }
-        .btn-clear { background: var(--danger); }
-
-        /* Table */
-        .table-container { background: white; border-radius: 8px; border: 1px solid #ccc; overflow: auto; }
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th, td { border: 1px solid #aeadad; padding: 4px; text-align: center; vertical-align: middle; position: relative; }
-        th { background: var(--primary); color: white; height: 30px; font-size: 13px; }
-        .break-cell { background: #333 !important; color: white; font-weight: bold; width: 35px; writing-mode: vertical-rl; text-orientation: upright; }
-        .conflict-error { background-color: #ffcccc !important; border: 2px solid red !important; }
-        .highlight-incomplete { background: #fff9c4 !important; border: 1.5px solid var(--warning) !important; }
-
-        select.sub-sel, select.t-sel  { width: 96%; border: 1px solid lightgray; border-radius: 4px; font-size: 14px; padding: 4px; background: white;}
-        select.t-sel { font-weight: bold; color: var(--primary); margin-top: 3px; }
-
-                .teacher-card {
-            background: #fff;
-            transition: 0.3s;
-        }
-        .teacher-card:hover {
-            background: #f1f1f1;
-        }
-
-        /* Dash Cards */
-        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { background: white; padding: 15px; border-radius: 10px; border: 1px solid #ddd; }
-        .dash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-        .progress-bg { background: #eee; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 4px; }
-        .progress-fill { height: 100%; transition: 0.5s; }
-        #tooltip { position: absolute; display: none; background: rgba(0,0,0,0.9); color: white; padding: 10px; border-radius: 5px; z-index: 1000; font-size: 11px; pointer-events: none; border: 1px solid #555; }
-        .invalid-selection {  border: 2px solid #d93025 !important; background-color: #ffebee !important; transition: all 0.3s ease; }
-        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 25px; border-radius: 20px; display: none; z-index: 2000; }
-      @media print { .no-print { display: none; } .table-container { border: none; } }
-    </style>
 </head>
 <body>
-<div id="tooltip"></div>
-<div class="header-box">
-    <div class="header-top">
-        <h2>Generate Routine </h2>
-        <div style="display:flex; gap:10px;">
-            <button class="btn-save" onclick="manualSave()">💾 Save Data</button>
-            <button style="background:#217346" onclick="downloadExcel()">📥 Download Routine</button>
+
+    <div class="header-box">
+        <div class="header-top">
+            <h2><span style="color:var(--secondary)">TSC</span> <span style="color:var(--warning)">Routine</span> Maker</h2>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-save" style="background:var(--secondary)" onclick="downloadExcel()">📥 Download Routine</button>
+                <button class="btn-reset" onclick="fullReset()">Full Reset</button>
+            </div>
         </div>
     </div>
-    <div class="tabs">
-        <button class="tab-btn active" onclick="openTab(event, 'routineSec')">📅 Routine</button>
-        <button class="tab-btn teacher-tab" onclick="openTab(event, 'teacherSec')">👨‍🏫 Add Teachers</button>
-        <button class="tab-btn dash-tab" onclick="openTab(event, 'dashSec')">📊 Dashboard</button>
+
+    <div style="background: white; padding: 15px 20px 0 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000;">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab(event, 'routineSec')">📅 রুটিন এডিটর</button>
+            <button class="tab-btn teacher-tab" onclick="openTab(event, 'teacherSec')">👨‍🏫 শিক্ষক ও বিষয় বিন্যাস</button>
+            <button class="tab-btn dash-tab" onclick="openTab(event, 'dashSec')">📊 ড্যাশবোর্ড</button>
+        </div>
     </div>
-</div>
 
-<div id="routineSec" class="content-section active">
-    <div class="control-bar no-print">
-        <strong>Select Day:</strong>
-        <select id="targetDay" class="day-select">
-            <option value="Sunday">Sunday</option><option value="Monday">Monday</option>
-            <option value="Tuesday">Tuesday</option><option value="Wednesday">Wednesday</option>
-            <option value="Thursday">Thursday</option>
-        </select>
-        <button class="btn-gen" onclick="generateDay()">🚀 Auto Fill</button>
-        <button class="btn-reset" style="background:var(--warning); color:#333" onclick="checkIncomplete()">👀 Highlight Gaps</button>
-        <button class="btn-reset" onclick="resetDay()">🧹 Clear Day</button>
-        <button class="btn-clear" style="margin-left:auto" onclick="fullReset()">⚠️ Wipe All Data</button>
-    </div>  
-    
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th style="width:60px">Day</th><th style="width:60px">Class</th><th style="width:40px">Sec</th>
-                    <th>P1</th><th>P2</th><th>P3</th><th>P4</th><th style="width:25px">B</th><th>P5</th><th>P6</th><th>P7</th><th>P8</th>
-                </tr>
-            </thead>
-            <tbody id="routineBody"></tbody>
-        </table>
-    </div>
-</div>
-
-<div id="teacherSec" class="content-section">
-    <div class="admin-grid">
-        <div class="card">
-            <h3 style="margin-bottom: 5px;">Teacher Name</h3>
-
-            <input type="text" id="tName" placeholder="Name" style="width:90%; padding:10px; border-radius: 5px;">
-
-            <h3 style="margin-bottom: 5px;">Short Form</h3>
-
-            <input type="text" id="tShort" placeholder="Name Short Form" style="width:90%; padding:10px; border-radius: 5px;">
-
-            <h3 style="margin-bottom: 5px;">Select Subjects</h3>
-
-            <div style="display:flex; gap:5px; margin-bottom:5px;">
-                <select id="subPicker" style="flex:1; padding: 10px;"></select>
-
-            <select id="tradeSpec" style="display:none; width:100%; padding:10px; margin-top:5px; border-radius: 5px; border: 1px solid #ccc;">
-                <option value="">-- Select Trade --</option>
-                <option value="A">Apparel (A)</option>
-                <option value="C">Civil (C)</option>
-                <option value="E">Electronics (E)</option>
-                <option value="W">Welding (W)</option>
+    <div id="routineSec" class="content-section active">
+        <div class="control-bar">
+            <select id="targetDay" class="day-select">
+                <option value="Sunday">Sunday</option>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
             </select>
-
-
-                <button class="btn-gen" onclick="addTag()">+ Add Subject</button>
+            <button class="btn-gen" onclick="generateDay()">⚡ Auto-Fill Day</button>
+            <button class="btn-clear" onclick="resetDay()">🧹 Clear Day</button>
+            <button class="btn-reset" style="background:var(--warning); color:#333" onclick="checkIncomplete()">👀 Highlight Gaps</button>
+            
+            <div class="class-download-box">
+                <select id="class-download-select" class="day-select" style="border-color: var(--primary);">
+                    <option value="">ক্লাস নির্বাচন করুন</option>
+                    <option value="6">Class 6</option>
+                    <option value="7">Class 7</option>
+                    <option value="8">Class 8</option>
+                    <option value="9">Class 9</option>
+                    <option value="10">Class 10</option>
+                </select>
+                <button onclick="downloadClassExcel()" style="background:var(--primary)">📋 Class Routine</button>
             </div>
-
-            <div id="tagContainer" style="border:1px dashed #ccc; padding:10px; margin-bottom:10px; border-radius: 5px;"></div>
-
-            <button class="btn-save" onclick="saveTeacher()" style="width:100%; display: flex; justify-content: center;">Save Teacher</button>
-        </div>
-        <div class="card">
-            <h3>Teacher List</h3>
-            <div id="tList" style="max-height: 300px; overflow-y: auto;"></div>
-        </div>
-    </div>
-</div>
-
-<div id="dashSec" class="content-section">
-    <div class="card" style="margin-bottom:20px;">
-        <h3>Subject Syllabus Progress</h3>
-        <div id="subDash" class="dash-grid"></div>
-    </div>
-    <div class="card">
-        <h3>Teacher Period Load</h3>
-        <div id="teacherDash" class="dash-grid"></div>
-    </div>
-</div>
-
-<div id="toast">Saved!</div>
-
-
-<script src="routine.js"></script>
-<script>
-const config = {
-    days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
-    classes: [6, 7, 8, 9, 10],
-    sections: ["A", "B"],
-    subjects: {
-        6: {"Bangla":4, "English":5, "Math":4, "Science":3, "BDGS":2, "Work":8, "Religion":2, "ICT":2},
-        7: {"Bangla":4, "English":5, "Math":4, "Science":3, "BDGS":2, "Work":8, "Religion":2, "ICT":2},
-        8: {"Bangla":4, "English":5, "Math":4, "Science":3, "BDGS":2, "Work":8, "Religion":2, "ICT":2},
-        9: {"Bangla":2, "English":3, "Math":3, "BDGS":2, "Physics":3, "Chemistry":3, "ICT":2, "Drawing":2, "Religion":2, "Trade1":8, "Trade2":8},
-        10: {"Bangla":2, "English":3, "Math":3, "BDGS":2, "Physics":3, "Chemistry":3, "ICT":2, "Drawing":2, "Religion":2, "Trade1":8, "Trade2":8}
-    }
-};
-
-let currentDayIdx = 0;
-let teachers = JSON.parse(localStorage.getItem('h_teachers')) || {};
-let routineData = JSON.parse(localStorage.getItem('h_routine')) || {};
-let tempTags = [];
-
-function openTab(evt, section) {
-    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(section).classList.add('active');
-    evt.currentTarget.classList.add('active');
-    updateUI();
-}
-
-// Teacher Management
-function addTag() {
-    const s = document.getElementById('subPicker').value;
-    if(s && !tempTags.includes(s)) { tempTags.push(s); renderTags(); }
-}
-function renderTags() {
-    document.getElementById('tagContainer').innerHTML = tempTags.map(t => `<span style="background:#eee; padding:2px 5px; margin:2px; border-radius:3px;">${t} <b onclick="removeTag('${t}')" style="color:red;cursor:pointer">x</b></span>`).join(' ');
-}
-function removeTag(t) { tempTags = tempTags.filter(x => x !== t); renderTags(); }
-
-document.getElementById('subPicker').addEventListener('change', function() {
-    const tradeSpec = document.getElementById('tradeSpec');
-    if (this.value === 'Trade1' || this.value === 'Trade2') {
-        tradeSpec.style.display = 'block';
-    } else {
-        tradeSpec.style.display = 'none';
-        tradeSpec.value = "";
-    }
-});
-
-
-
-function renderTList() {
-    // এখানে আইডি 'tList' ব্যবহার করা হয়েছে যা আপনার HTML এর সাথে মিলবে
-    const list = document.getElementById('tList'); 
-    if (!list) return;
-
-    list.innerHTML = Object.keys(teachers).map(tId => {
-        const t = teachers[tId];
-        // ট্রেড থাকলে সেটা দেখাবে
-        const tradeBadge = t.trade ? `<b style="color:var(--primary); border:1px solid #ccc; padding:0 4px; border-radius:3px; margin-left:5px;">${t.trade}</b>` : '';
-        
-        return `
-            <div class="teacher-card" style="border:1px solid #ddd; padding:10px; margin-bottom:5px; border-radius:5px; border-left: 5px solid ${t.trade ? '#1a73e8' : '#34a853'}; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <strong>${t.name} (${tId})</strong> ${tradeBadge}
-                    <div style="font-size:11px; color:#666">${t.subs.join(', ')}</div>
-                </div>
-                <button onclick="deleteTeacher('${tId}')" style="background:none; border:none; color:red; cursor:pointer; font-size:18px;">&times;</button>
+            
+            <div style="margin-left: auto; display: flex; gap: 5px; align-items: center;">
+                <select id="teacher-download-select" class="day-select" style="border-color: var(--purple);"></select>
+                <button onclick="downloadTeacherExcel()" style="background:var(--purple)">🖨️ Teacher Routine</button>
             </div>
-        `;
-    }).join('');
-}
+        </div>
 
-// টিচার ডিলিট করার ফাংশন (যা renderTList এ কল করা হয়েছে)
-function deleteTeacher(id) { 
-    if(confirm("আপনি কি এই শিক্ষককে মুছে ফেলতে চান?")) { 
-        delete teachers[id]; 
-        localStorage.setItem('h_teachers', JSON.stringify(teachers)); 
-        renderTList(); // লিস্ট আপডেট
-        updateUI();    // ড্যাশবোর্ড আপডেট
-        showToast("শিক্ষক মুছে ফেলা হয়েছে");
-    } 
-}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">Day</th>
+                        <th style="width: 40px;">Class</th>
+                        <th style="width: 30px;">Sec</th>
+                        <th>P1</th><th>P2</th><th>P3</th><th>P4</th>
+                        <th style="width: 35px; background: #eee; color: #666;">B</th>
+                        <th>P5</th><th>P6</th><th>P7</th><th>P8</th>
+                    </tr>
+                </thead>
+                <tbody id="routineBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
 
-function saveTeacher() {
-    const name = document.getElementById('tName').value;
-    const short = document.getElementById('tShort').value.toUpperCase().trim();
-    const trade = document.getElementById('tradeSpec').value;
-    
-    if(!name || !short || tempTags.length === 0) {
-        return alert("শিক্ষকের নাম, সংক্ষিপ্ত নাম এবং কমপক্ষে একটি বিষয় নির্বাচন করুন!");
-    }
-    
-    teachers[short] = { 
-        name, 
-        subs: [...tempTags], 
-        trade: (tempTags.includes('Trade1') || tempTags.includes('Trade2')) ? trade : null
-    };
-
-    localStorage.setItem('h_teachers', JSON.stringify(teachers));
-    
-    // ইনপুট ফিল্ড খালি করা
-    document.getElementById('tName').value = "";
-    document.getElementById('tShort').value = "";
-    document.getElementById('tradeSpec').style.display = 'none';
-    tempTags = [];
-    
-    renderTags(); 
-    renderTList(); // লিস্ট রিফ্রেশ করবে
-    updateUI();    
-    showToast("শিক্ষকের তথ্য সেভ হয়েছে!");
-}
-
-
-// UI Initialization
-function init() {
-    // সাবজেক্ট পিকার আপডেট (সেটিংস প্যানেলের জন্য)
-    const allS = new Set(); 
-    Object.values(config.subjects).forEach(c => Object.keys(c).forEach(s => allS.add(s)));
-    const subPicker = document.getElementById('subPicker');
-    if(subPicker) {
-        subPicker.innerHTML = Array.from(allS).sort().map(s => `<option value="${s}">${s}</option>`).join('');
-    }
-    
-    let html = "";
-    config.days.forEach(day => {
-        config.classes.forEach((cls, cIdx) => {
-            config.sections.forEach((sec, sIdx) => {
-                html += `<tr data-day="${day}" data-cls="${cls}" data-sec="${sec}">`;
-                
-                // দিন (Day) কলাম - rowspan দিয়ে ১০টি রো মার্জ করা
-                if(cIdx === 0 && sIdx === 0) {
-                    html += `<td rowspan="10" style="background:#e8f0fe; font-weight:bold; font-size:14px;">${day}</td>`;
-                }
-                
-                // ক্লাস (Class) কলাম - rowspan দিয়ে ২টো রো (A, B section) মার্জ করা
-                if(sIdx === 0) {
-                    html += `<td rowspan="2" style="font-weight:bold; background:#fafafa;">Cls ${cls}</td>`;
-                }
-                
-                // সেকশন কলাম
-                html += `<td style="font-weight:bold; color:#888">${sec}</td>`;
-                
-                // পিরিয়ড কলামগুলো (P1 থেকে P8)
-                [1, 2, 3, 4, "B", 5, 6, 7, 8].forEach(p => {
-                    if(p === "B") {
-                        // টিফিন ব্রেক
-                        html += `<td class="break-cell">BREAK</td>`;
-                    } else if(cls <= 8 && p > 6) {
-                        // ৬ষ্ঠ পিরিয়ডের পর ক্লাস ৬-৮ এর জন্য ফাঁকা
-                        html += `<td style="background:#eee; color:#ddd;"></td>`;
-                    } else {
-                        // সাধারণ পিরিয়ড সেল
-                        const id = `${day}-${cls}-${sec}-p${p}`;
-                        const val = routineData[id] || {sub:"", tea:""};
+    <div id="teacherSec" class="content-section">
+        <div class="admin-grid">
+            <div class="card">
+                <h3>শিক্ষক তথ্য ও বিষয় ইনপুট</h3>
+                <div style="display: grid; gap: 12px;">
+                    <input type="text" id="tName" placeholder="শিক্ষকের পূর্ণ নাম (যেমন: Jiten Chandra Roy)" style="padding:10px; border:1px solid #ddd; border-radius:5px;">
+                    <input type="text" id="tShort" placeholder="সংক্ষিপ্ত নাম (যেমন: JCR)" style="padding:10px; border:1px solid #ddd; border-radius:5px;">
+                    
+                    <div class="assignment-area">
+                        <label style="font-weight: bold; color: #1a73e8; display: block; margin-bottom: 8px;">শ্রেণী ও বিষয় বরাদ্দ করুন:</label>
                         
-                        // ট্রেড চেক লজিক: যদি সেভ করা ডাটা ট্রেড হয় তবে বিশেষ ক্লাস বা স্টাইল দিতে পারেন
-                        const isTrade = (val.sub === "Trade1" || val.sub === "Trade2");
-
-                        html += `<td id="${id}" class="routine-cell" onmouseover="showTooltip(event, this)" onmouseout="hideTooltip()">
-                            <select class="sub-sel" onchange="subChg(this)">
-                                <option value="">---</option>
-                                ${Object.keys(config.subjects[cls]).map(s => 
-                                    `<option value="${s}" ${val.sub === s ? 'selected' : ''}>${s}</option>`
-                                ).join('')}
+                        <div style="display: flex; gap: 8px;">
+                            <select id="assign-cls" class="day-select" style="flex: 1;">
+                                <option value="all">সব ক্লাস</option>
+                                <option value="6">Class 6</option>
+                                <option value="7">Class 7</option>
+                                <option value="8">Class 8</option>
+                                <option value="9">Class 9</option>
+                                <option value="10">Class 10</option>
                             </select>
                             
-                            <select class="t-sel t-day-${day} t-p-${p}" onchange="manualSave()" style="${isTrade ? 'display:none' : 'display:block'}">
-                                <option value="">---</option>
-                                ${!isTrade ? getTOpts(val.sub, val.tea) : ''}
+                            <select id="subPicker" class="day-select" style="flex: 2;">
+                                <option value="">বিষয় লোড হচ্ছে...</option>
                             </select>
-                        </td>`;
-                    }
-                });
-                
-                html += `</tr>`;
-            });
-        });
-    });
-    
-    // টেবিল বডিতে কন্টেন্ট পুশ করা
-    document.getElementById('routineBody').innerHTML = html;
 
-    // --- ট্রেড ডাটা রেন্ডারিং (পেজ লোড হওয়ার পর) ---
-    Object.keys(routineData).forEach(id => {
-        const data = routineData[id];
-        const td = document.getElementById(id);
-        if (td && (data.sub === "Trade1" || data.sub === "Trade2")) {
-            // ট্রেড সেল সেটআপ করা
-            setupTradeCell(td, data.sub);
-            
-            // সেভ করা টিচারদের সিলেক্ট করা
-            if (Array.isArray(data.tea)) {
-                const miniSels = td.querySelectorAll('.trade-mini-sel');
-                data.tea.forEach((tCode, index) => {
-                    if (miniSels[index]) {
-                        miniSels[index].value = tCode;
-                    }
-                });
-            }
-        }
-    });
-    
-    // টিচার লিস্ট এবং ড্যাশবোর্ড আপডেট
-    renderTList(); 
-    updateUI();
-    if (typeof updateConflictUI === "function") updateConflictUI(); 
-}
+                            <button type="button" onclick="addAssignment()" style="background:#28a745; color:white; padding: 5px 15px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">
+                                Add
+                            </button>
+                        </div>
+                        
+                        <select id="tradeSpec" class="day-select" style="display:none; margin-top:10px; width:100%; border-color: #f39c12;">
+                            <option value="">-- শিক্ষকের নির্দিষ্ট ট্রেড সিলেক্ট করুন --</option>
+                            <option value="A">Apparel Manufacturing</option>
+                            <option value="C">Civil Construction</option>
+                            <option value="E">Electrical Maintenance</option>
+                            <option value="W">Welding & Fabrication</option>
+                        </select>
 
+                        <div id="assignment-list" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 5px; border-top: 1px dashed #ccc; padding-top: 10px;">
+                            <p style="font-size: 12px; color: #888;">এখনো কোনো বিষয় যোগ করা হয়নি।</p>
+                        </div>
+                    </div>
 
+                    <div style="display:flex; align-items:center; gap:10px; background: #eef2f7; padding: 10px; border-radius: 5px;">
+                        <label>সাপ্তাহিক সর্বোচ্চ ক্লাস (Max Load):</label>
+                        <input type="number" id="t-max-load" value="24" style="width:60px; padding:5px; border: 1px solid #ccc;">
+                    </div>
 
-function getTOpts(sub, selectedT) {
-    if (!sub) return '<option value="">---</option>';
-    
-    // ওই বিষয়ের শিক্ষকদের ফিল্টার করা
-    let list = Object.keys(teachers).filter(tId => teachers[tId].subs.includes(sub));
-    
-    let html = '<option value="">---</option>';
-    list.forEach(tId => {
-        const t = teachers[tId];
-        // ড্রপডাউনে দেখাবে: RH (E) বা AK (General)
-        const displayLabel = t.trade ? `${tId} (${t.trade})` : tId;
-        
-        html += `<option value="${tId}" ${tId === selectedT ? 'selected' : ''}>${displayLabel}</option>`;
-    });
-    return html;
-}
+                    <div style="display:flex; gap:10px; margin-top: 10px;">
+                        <button class="btn-save btnSaveTeacher" onclick="saveTeacher()" style="flex:1; height: 45px; font-size: 16px;">Save Teacher</button>
+                        <button class="btn-reset" onclick="resetTeacherForm()" style="background:#666; flex: 0.5;">Cancel</button>
+                    </div>
+                </div>
+            </div>
 
+            <div class="card">
+                <h3>শিক্ষক তালিকা</h3>
+                <div id="tList" style="max-height: 480px; overflow-y: auto;">
+                    </div>
+            </div>
+        </div>
+    </div>
 
+    <div id="dashSec" class="content-section">
+        <div class="admin-grid">
+            <div class="card">
+                <h3>বিষয় ও শ্রেণি ভিত্তিক Class Loads</h3>
+                <div id="subDash" class="dash-grid"></div>
+            </div>
+            <div class="card">
+                <h3>শিক্ষকদের Class Load Status</h3>
+                <div id="teacherDash" class="dash-grid"></div>
+            </div>
+        </div>
+    </div>
 
-// manualSave ফাংশনে টিচার ডাটা কালেকশন আপডেট
-function manualSave() {
-    document.querySelectorAll('.routine-cell').forEach(td => {
-        const sub = td.querySelector('.sub-sel').value;
-        let teachersSelected = [];
+    <div id="tooltip"></div>
+    <div id="toast"></div>
 
-        if (sub === "Trade1" || sub === "Trade2") {
-            td.querySelectorAll('.trade-mini-sel').forEach(s => {
-                if(s.value) teachersSelected.push(s.value);
-            });
-        } else {
-            teachersSelected = td.querySelector('.t-sel').value;
-        }
-
-        routineData[td.id] = { sub: sub, tea: teachersSelected };
-    });
-    localStorage.setItem('h_routine', JSON.stringify(routineData));
-    updateUI();
-}
-
-
-function generateDay() {
-    const day = document.getElementById('targetDay').value;
-
-    if(Object.keys(teachers).length === 0) {
-        alert("Add teachers first!");
-        return;
-    }
-
-    runAutoFill(day); // 🔥 নতুন smart function
-
-    manualSave();
-    showToast("Generated for " + day);
-}
-
-
-function updateConflictUI() {
-    document.querySelectorAll('.t-sel').forEach(s => s.classList.remove('conflict-error'));
-    config.days.forEach(day => {
-        for(let p=1; p<=8; p++) {
-            let sels = document.querySelectorAll(`.t-day-${day}.t-p-${p}`);
-            let tMap = {};
-            sels.forEach(s => { if(s.value) { tMap[s.value] = (tMap[s.value] || 0) + 1; } });
-            sels.forEach(s => { if(tMap[s.value] > 1) s.classList.add('conflict-error'); });
-        }
-    });
-}
-
-function updateUI() {
-    let sc = {}; let tc = {};
-    Object.keys(routineData).forEach(k => {
-        const d = routineData[k];
-        if(d.sub) {
-            const cls = k.split('-')[1];
-            sc[cls] = sc[cls] || {}; sc[cls][d.sub] = (sc[cls][d.sub]||0)+1;
-            if(d.tea) tc[d.tea] = (tc[d.tea]||0)+1;
-        }
-    });
-    
-    let sH = ""; config.classes.forEach(c => {
-        sH += `<div class="card"><strong>Class ${c}</strong><div style="margin-top:5px">`;
-        Object.keys(config.subjects[c]).forEach(s => {
-            let cur = sc[c]?.[s]||0; let tar = config.subjects[c][s]*2;
-            let p = Math.min((cur/tar)*100, 100);
-            sH += `<div style="font-size:10px; display:flex; justify-content:space-between;"><span>${s}</span><span>${cur}/${tar}</span></div>
-                   <div class="progress-bg"><div class="progress-fill" style="width:${p}%; background:${p>=100?'var(--secondary)':'var(--primary)'}"></div></div>`;
-        });
-        sH += `</div></div>`;
-    });
-    document.getElementById('subDash').innerHTML = sH;
-
-    document.getElementById('teacherDash').innerHTML = Object.keys(teachers).map(id => `
-        <div class="card" style="text-align:center"><strong>${id}</strong><br>${tc[id]||0} Periods</div>
-    `).join('');
-}
-
-function resetDay() {
-    if(confirm("আপনি কি নিশ্চিত যে এই দিনের (Day) সব ক্লাস মুছে ফেলতে চান?")) { 
-        const d = document.getElementById('targetDay').value;
-        
-        // ওই নির্দিষ্ট দিনের সব রুটিন সেল খুঁজে বের করা
-        document.querySelectorAll(`tr[data-day="${d}"] .routine-cell`).forEach(td => {
-            
-            // ১. সাবজেক্ট ড্রপডাউন খালি করা
-            const subSel = td.querySelector('.sub-sel');
-            if(subSel) subSel.value = ""; 
-
-            // ২. সাধারণ টিচার ড্রপডাউন রিসেট এবং শো করা
-            const tSel = td.querySelector('.t-sel');
-            if(tSel) {
-                tSel.innerHTML = '<option value="">---</option>';
-                tSel.style.display = 'block'; // যদি হাইড থাকে তবে শো করবে
-            }
-
-            // ৩. ট্রেড সেকশন (৪টি মিনি ড্রপডাউন) থাকলে তা মুছে ফেলা
-            td.querySelectorAll('.trade-selector-container').forEach(e => e.remove());
-
-            // ৪. কোনো এরর বা ইনভ্যালিড সিলেকশন ক্লাস থাকলে তা রিমুভ করা
-            td.classList.remove('invalid-selection');
-            td.classList.remove('highlight-incomplete');
-        });
-
-        // ৫. লোকাল স্টোরেজ আপডেট করা
-        manualSave();
-        
-        // ৬. ইউজারকে জানানো
-        showToast("🧹 " + d + " এর সব ডাটা পরিষ্কার করা হয়েছে।");
-    }
-}
-
-
-
-function checkIncomplete() {
-    document.querySelectorAll('.routine-cell').forEach(td => td.classList.remove('highlight-incomplete'));
-    document.querySelectorAll(`tr[data-day="${document.getElementById('targetDay').value}"] .routine-cell`).forEach(td => {
-        if(!td.querySelector('.sub-sel').value) td.classList.add('highlight-incomplete');
-    });
-}
-
-function showToast(m) { const t = document.getElementById('toast'); t.innerText=m; t.style.display='block'; setTimeout(()=>t.style.display='none', 2000); }
-
-
-
-function fullReset() {
-    if(confirm("সব ডাটা মুছে ফেলা হবে! আপনি কি নিশ্চিত?")) { localStorage.clear();  location.reload();}
-}
-
-window.onload = init;
-</script>
+    <script src="routine.js"></script>
+    <script src="helper.js"></script>
 </body>
 </html>
